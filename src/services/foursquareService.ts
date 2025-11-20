@@ -1,4 +1,3 @@
-import axios from "axios";
 import { FourSquareResponseSchema, type RestaurantCommand } from "../schema/schema.js";
 
 export async function searchFoursquare(structuredQuery: RestaurantCommand){
