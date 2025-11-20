@@ -1,7 +1,7 @@
 import express from 'express';  
 import searchRoute from "./routes/searchRoute.js";
 import dotenv from 'dotenv';
-import rateLimit from 'express-rate-limit';
+import { rateLimit } from 'express-rate-limit';
 
 dotenv.config();
 const app = express();
