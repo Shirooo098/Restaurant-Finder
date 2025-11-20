@@ -3,8 +3,8 @@ import z from "zod";
 export const RestaurantCommandSchema = z.object({
     action: z.literal("restaurant_search"),
     parameters: z.object({
-        query: z.string(),
-        near: z.string(),
+        query: z.string().min(4),
+        near: z.string().min(4),
     })
 })
 

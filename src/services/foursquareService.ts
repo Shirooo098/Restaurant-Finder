@@ -14,7 +14,7 @@ export async function searchFoursquare(structuredQuery: RestaurantCommand){
         limit: "5",
     });
 
-    const url =`${FOURSQUARE_SEARCH_URL}?${queryParams.toString()}`
+    const url: string = `${FOURSQUARE_SEARCH_URL}?${queryParams.toString()}`
     try {
         const response = await fetch(url, {
             method: "GET",
