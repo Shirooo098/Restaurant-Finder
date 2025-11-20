@@ -8,25 +8,33 @@ export async function searchFoursquare(structuredQuery: RestaurantCommand){
 
     if(!FOURSQUARE_API_KEY) throw new Error("Foursquare API key is not configured");
     
-    const queryParams = {
+    const queryParams = new URLSearchParams({
         query: parameters.query,
         near: parameters.near,
-        category: "13065" , // Restaurant Category ID
-        limit: 5,
-    }
+        category: "13065",
+        limit: "5",
+    });
 
+    const url =`${FOURSQUARE_SEARCH_URL}?${queryParams.toString()}`
     try {
-        const response = await axios.get(FOURSQUARE_SEARCH_URL, {
+        const response = await fetch(url, {
+            method: "GET",
             headers: {
                 Authorization: `Bearer ${FOURSQUARE_API_KEY}`,
                 Accept: "application/json",
-                'X-Places-Api-Version': '2025-06-17'
-            },
-            params: queryParams
-        })
+                "X-Places-Api-Version": "2025-06-17"
+            }
+        });
 
-        const validatedResponse = FourSquareResponseSchema.parse(response.data)
-        let restaurants = validatedResponse.results;
+        if(!response.ok){
+            console.error("Status: ", response.status);
+            throw new Error(`Fetch Error: ${response.status}`)
+        }
+
+        const data = await response.json();
+        const validatedResponse = FourSquareResponseSchema.parse(data);
+
+        const restaurants = validatedResponse.results;
 
         const results = restaurants.map((resto) => ({
             name: resto.name,
@@ -36,16 +44,11 @@ export async function searchFoursquare(structuredQuery: RestaurantCommand){
             // price_level: resto.price,
             // open_now: resto.hours?.open_now,
             // sort: resto.sort
-        }))
+        }));
 
         return results;
-    } catch (error: unknown) {
-        if(error instanceof Error){
-            console.error("Foursquare format error:", error);
-            throw error;
-        }
-
-        console.error("Foursquare API Error:", error)
-        throw error;
+    } catch (error: any) {
+        console.error("Fetch Error: ", error);
+        throw new Error("Error in fetching: ", error.message)
     }
 }

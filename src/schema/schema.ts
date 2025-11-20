@@ -4,7 +4,7 @@ export const RestaurantCommandSchema = z.object({
     action: z.literal("restaurant_search"),
     parameters: z.object({
         query: z.string(),
-        near: z.string().optional(),
+        near: z.string(),
     })
 })
 

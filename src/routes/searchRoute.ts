@@ -1,9 +1,8 @@
 import { Router, type Request, type Response } from "express";
-import type { Router as ExpressRouter } from "express";
 import { interpretUserQuery } from "../services/AIService.js";
 import { searchFoursquare } from "../services/foursquareService.js";
 
-const router: ExpressRouter = Router();
+const router: Router = Router();
 
 router.get("/", async(req: Request, res: Response) => {
     try {
