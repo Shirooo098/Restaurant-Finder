@@ -1,10 +1,5 @@
-
-import { GoogleGenAI } from "@google/genai";
+import { OpenAI } from "openai";
 import { RestaurantCommandSchema, type RestaurantCommand } from "../schema/schema.js";
-import { zodToJsonSchema } from "zod-to-json-schema";
-
-
-const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY!});
 
 export async function interpretUserQuery(
     userQuery: string
@@ -15,44 +10,54 @@ export async function interpretUserQuery(
             "parameters": {
                     "query": "cuisine or restaurant",
                     "near": "location",
-                    "price": "1",
-                    "open_now": true
+                    // "price": "1",
+                    // "open_now": true,
+                    // "rating": 4,
+                    // "sort: "relevance, rating, distance or popularity"
                 }
         }
 
         Rules: 
             - action must be exactly "restaurant_search"
-            - price must be one of: "1", "2", "3", "4" (as strings)
-            - open_now must be boolean (true / false)
+            - strictly only return cuisine or restaurant
+            // - price must be one of: "1", "2", "3", "4" (as strings)
+            // - open_now must be boolean (true / false)
+            // - sort must be one of "relevance", "rating", "distance", "popularity" (as strings)
             - exclude fields if not mentioned in the query
         Extract the following information: 
             - query: type of cuisine or restaurant
             - near: location (city, address)
-            - price: price level as strings "1" being the most affordable and "4" being the most expensive
-            - open_now: boolean, true if user mentions "open now" or similar
-
+            // - price: price level as strings "1" being the most affordable and "4" being the most expensive
+            // - price: classify "1" as most affordable and "4" being the most expensive
+            // - open_now: boolean, true if user mentions "open now" or similar
+            // - sort: sort the restaurants or cuisine by relevance, rating, distance or popularity
 
         User Message: "${userQuery}"
         Only return valid JSON format.
     `;
 
     try {
-        const response = await ai.models.generateContent({ 
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseJsonSchema: zodToJsonSchema(
-                    RestaurantCommandSchema, 
-                    "restaurantCommand"
-                )
-            } 
+        const client = new OpenAI({
+            baseURL: 'https://openrouter.ai/api/v1',
+            apiKey: process.env.OPENROUTER_API_KEY
         });
 
-        if (!response.text) throw new Error("No response text received from Gemini AI");
+        const apiResponse = await client.chat.completions.create({
+            model: 'x-ai/grok-4.1-fast',
+            messages: [{
+                role: 'user' as const,
+                content: prompt
+            }],
+        });
 
-        const responseText = JSON.parse(response.text)
-        const result = RestaurantCommandSchema.parse(responseText)
+        const message = apiResponse.choices[0]?.message?.content;
+        if(!message) {
+            throw new Error("AI did not return any content")
+        };
+
+        console.log("AI prompt message:", message)
+
+        const result = RestaurantCommandSchema.parse(JSON.parse(message));
 
         return result;
     } catch (error: unknown) {
