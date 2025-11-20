@@ -46,8 +46,8 @@ export async function searchFoursquare(structuredQuery: RestaurantCommand){
         }));
 
         return results;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Fetch Error: ", error);
-        throw new Error("Error in fetching: ", error.message)
+        throw error; 
     }
 }
