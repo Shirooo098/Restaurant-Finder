@@ -143,7 +143,11 @@ The server will be running at `http://localhost:3000`.
 │       └── foursquareService.ts # Logic for fetching data from the Foursquare API
 ├── package.json
 └── tsconfig.json
+```
 
 ## Assumption & Limitations
 
-My assumption & limitations of this application as a developer, is that the AI response is slow, it needs optimization perhaps use of Redis to cache; which I don't currently have an knowledge and experience. In addition to that, the error handling are inconsistent.
+```
+My assumption & limitations of this application as a developer, is that the AI response is slow, it needs optimization perhaps use of Redis to cache; which I don't currently have an knowledge and experience.
+In addition to that, the error handling are inconsistent.
+```
